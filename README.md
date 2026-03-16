@@ -43,7 +43,7 @@ CC: 42
 
 **Steps:**
 ```bash
-git clone https://github.com/imnochi/clickcounter
+git clone https://github.com/cdramirez25/clickcounter
 cd clickcounter
 cmake -B build
 cmake --build build --config RelWithDebInfo
@@ -87,12 +87,6 @@ Ideas for future versions:
 - Show clicks per attempt in the end screen
 - Separate counters for Player 1 and Player 2 in dual mode
 - Best/average clicks per attempt tracking
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE) for details.
 
 ---
 
