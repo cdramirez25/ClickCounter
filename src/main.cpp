@@ -4,44 +4,46 @@
 
 using namespace geode::prelude;
 
-static int s_clicks = 0;
-static CCLabelBMFont* s_label = nullptr;
-
-static void updateLabel() {
-    if (!s_label) return;
-    s_label->setString(fmt::format("CC: {}", s_clicks).c_str());
-}
-
 class $modify(MyPlayLayer, PlayLayer) {
+
+    struct Fields {
+        int m_clicks = 0;
+        CCLabelBMFont* m_label = nullptr;
+    };
+
+    void updateLabel() {
+        if (!m_fields->m_label) return;
+        m_fields->m_label->setString(
+            fmt::format("CC: {}", m_fields->m_clicks).c_str()
+        );
+    }
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects))
             return false;
 
-        s_clicks = 0;
-        s_label = nullptr;
-
         auto winSize = CCDirector::get()->getWinSize();
 
-        s_label = CCLabelBMFont::create("CC: 0", "bigFont.fnt");
-        s_label->setScale(0.45f);
-        s_label->setOpacity(150); // semi-transparente
-        s_label->setAnchorPoint({ 0.f, 1.f });
-        s_label->setPosition({ 6.f, winSize.height - 6.f });
-        s_label->setZOrder(100);
-        this->addChild(s_label);
+        auto label = CCLabelBMFont::create("CC: 0", "bigFont.fnt");
+        label->setScale(0.45f);
+        label->setOpacity(150);
+        label->setAnchorPoint({ 0.f, 1.f });
+        label->setPosition({ 6.f, winSize.height - 6.f });
+        label->setZOrder(100);
+
+        this->m_uiLayer->addChild(label);
+
+        m_fields->m_label = label;
 
         return true;
     }
 
     void onQuit() {
-        s_label = nullptr;
-        s_clicks = 0;
         PlayLayer::onQuit();
     }
 
     void resetLevel() {
-        s_clicks = 0;
+        m_fields->m_clicks = 0;
         updateLabel();
         PlayLayer::resetLevel();
     }
@@ -51,9 +53,11 @@ class $modify(MyBaseLayer, GJBaseGameLayer) {
 
     void handleButton(bool down, int button, bool isPlayer1) {
         GJBaseGameLayer::handleButton(down, button, isPlayer1);
-        if (down && PlayLayer::get()) {
-            s_clicks++;
-            updateLabel();
-        }
+        if (!down) return;
+        auto pl = PlayLayer::get();
+        if (!pl) return;
+        auto myPl = static_cast<MyPlayLayer*>(pl);
+        myPl->m_fields->m_clicks++;
+        myPl->updateLabel();
     }
 };
